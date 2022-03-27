@@ -1,0 +1,147 @@
+---
+title: "Project 3 Al's Work "
+author: "Team Sloth (Al's portion)"
+date: "3/21/2022"
+output: html_document
+---
+
+## Introduction: 
+ My group consisted of me(Al),Benson and Jay Lee. Our group had found many data sets but ultimately we decided upon an Indeed data set that contains information about jobs posting from Indeed that contained information regarding which company were hiring for what roles,the salaries,and skills they are required to know.My role was to compare salaries by job-type and possibly job-title. 
+ 
+ 
+## My approach: 
+ After examining the data many times I had ultimately decided to compare salary ranges of the "Data Scientist" job-type within the data since there were so many entries that consisted of three job types which were data engineer, data analyst and data scientists. I decided upon narrowing the category to data scientists since it was relevant to the question of "which skills are important for data scientists to Have". I first broke down the data scientists job role into 3 salaries ranges which were less than 80K (low-range), Mid-Range and High-End. For each category I broke each job posting to looking at the number of programming language (# of skills as it is called in the data) one should know for each job posting and then I grouped each posting under a industry. This approach was used to help understand how many skills a data scientist should know in each industry. 
+ 
+
+## Understanding the data
+ To better understand the graph, it had added the numbers of skills from each job-posting and added each # of skills its relevant industry. So for example if a job posting under govt industry required u know to 2 programing languages and another govt industry job posting required you to know 3 programming languages then the number of skills under govt would be 5.I used this approach to better understand how many programming "skills" are required for each industry and for which specific salary range. 
+
+
+
+### Read the data and creating the Tables
+
+```{r cars}
+library(tidyverse)
+indeed_url<- "https://raw.githubusercontent.com/Benson90/Project3/main/indeed_job_dataset.csv"
+indeeddata <-read.csv(indeed_url)
+
+college_url<- "https://raw.githubusercontent.com/jayleecunysps/607data/main/tabn322.csv"
+collegedata <-read.csv(college_url, skip = 1)
+
+## deleleted the rows
+collegedata<-collegedata %>% 
+slice(-1,-36,-37,-38,-39,-40)
+## selected the columns 
+collegedata <-collegedata[,1:19]
+```
+
+```{r clean, echo=FALSE}
+
+
+jobtable <- indeeddata %>%
+select("X","Job_Title","Queried_Salary","Job_Type","Skill","No_of_Skills","Company","Company_Industry")
+
+skilltable <- indeeddata %>%
+select("X","python","sql","machine.learning","r","hadoop","tableau","sas","spark","java","Others")
+
+companytable <- indeeddata %>%
+select("X","Company","Location","Company_Revenue","Company_Employees","Consulting.and.Business.Services","Internet.and.Software","Banks.and.Financial.Services","Health.Care","Insurance","Other_industries")
+
+
+```
+
+
+
+### Low-Range (Less than 80K)
+see what job-type are assigned in this range and skills that are desired here I first compared salaries that are less than 80k and I filtered out the jobs that don't require any skills and cleaned out jobs postings that aren't in any industry. 
+
+```{r}
+## I filtered out the table to less than 80K range salary and I omitted the empty data sets.
+LEssthan80k <-jobtable %>%
+  filter(Job_Type=="data_scientist",Queried_Salary =="<80000",No_of_Skills != "0",Company_Industry !="") %>%
+  group_by(Company_Industry)
+
+## Here I graphed the data to better understand it.. .
+ggplot(LEssthan80k,aes(x=Company_Industry,y=No_of_Skills)) +
+  geom_bar(stat="identity") +
+  coord_flip() + labs(
+    title= " # of Skills Required For Each Industry that pays under 80k"
+  )
+```
+
+Industries like Education and Schools seems to demand the most out of data scientists while local organizations demand the least amount of skills. This make sense since the education sector has a lot of data regarding students'scores,location,race, and etc and they need all the best qualified candidates they can get to make sense of the data and to help students.Generally schools and education industry are usually underfunded from the city and thus it makes sense that they would pay the least amount of salary. 
+
+
+
+### Low-Mid-Range (80-99K)
+ For Mid-Range I had split the salary ranges of 80-100K,100K-119K and 120K-139K into 3 bar graphs which I classified as mid-range. To fully view the data just click on the show in new windows to see the whole bar chart.
+
+```{r}
+## Here I filtered the salary by mid-range which is: 
+Midrange_1 <-jobtable %>%
+  filter(Job_Type=="data_scientist",Queried_Salary == "80000-99999",No_of_Skills != "0",Company_Industry !="") %>%
+  group_by(Company_Industry)
+
+
+ggplot(Midrange_1,aes(x=Company_Industry,y=No_of_Skills)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+   labs(
+    title= "Skills Required For Each Industry that pays for Mid-Range-Industry"
+  )
+```
+
+
+### Mid-Range 100K to 119K: 
+
+```{r}
+Midrange2 <-jobtable %>%
+  filter(Job_Type=="data_scientist",Queried_Salary == "100000-119999",No_of_Skills != "0",Company_Industry !="") %>%
+  group_by(Company_Industry)
+
+ggplot(Midrange2,aes(x=Company_Industry,y=No_of_Skills)) +
+  geom_bar(stat="identity") +
+  coord_flip() + labs(
+    title= "Industry that Pays within the 100K to 119K"
+  )
+
+```
+
+## High Mid-Range (120-139K)
+
+```{r}
+## Here I filtered it by 120-139K range
+Midrange3 <-jobtable %>%
+  filter(Job_Type=="data_scientist",Queried_Salary == "120000-139999",No_of_Skills != "0",Company_Industry !="") %>%
+  group_by(Company_Industry)
+
+ggplot(Midrange3,aes(x=Company_Industry,y=No_of_Skills)) +
+  geom_bar(stat="identity") +
+  coord_flip() + labs(
+    title= "Industry that Pays within the 120K to 139K"
+  )
+```
+
+
+Interpreting each salary range in this mid-range it seems that the industry that demands the most programming skills for the "mid-range" salary is the consulting and business services industry.  
+
+
+### High-Range: 
+
+```{r}
+HighRange <-jobtable %>%
+  filter(Job_Type=="data_scientist",Queried_Salary ==">160000",No_of_Skills != "0",Company_Industry !="") %>%
+  group_by(Company_Industry)
+
+ggplot(HighRange,aes(x=Company_Industry,y=No_of_Skills)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  labs(
+    title = "Industry that pay greater than 160K"
+  )
+
+```
+
+In the high-range Salary range which is greater than 160K it seems the top industry to pay and demand the greatest skills to work in these industry is the Internet and Software industry followed by consulting and business services and banks and financial services. Makes sense since tech industries like Google,Facebook and other tech companies are able to hire more workers and earn a lot of money to be able to pay their employees in this high salary range. 
+
+
